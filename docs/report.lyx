@@ -1,0 +1,2708 @@
+#LyX file created by tex2lyx 2.4
+\lyxformat 620
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin C:/Users/NOS/SREES_2026_Erovic_SCC/docs/
+\textclass article
+\begin_preamble
+
+
+\usepackage[croatian]{babel}
+% latinicni jezik s dijakriticima (c, c, z, s, dj)
+\usepackage{siunitx}
+
+
+\graphicspath{{figures/}}
+
+\title{\textbf{Proračun kratkih spojeva za transmisione mreže\\(simetrične mreže)}}
+\author{Ilhan Erović\\[4pt]\normalsize Univerzitet u Sarajevu --- Elektrotehnički fakultet\\
+\normalsize Seminarski rad iz predmeta SREES}
+\date{2026}
+
+
+\end_preamble
+\use_default_options false
+\maintain_unincluded_children no
+\language croatian
+\language_package default
+\inputencoding utf8
+\fontencoding T1
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_roman_osf false
+\font_sans_osf false
+\font_typewriter_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref true
+\pdf_bookmarks 0
+\pdf_bookmarksnumbered 0
+\pdf_bookmarksopen 0
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks 0
+\pdf_pdfborder 0
+\pdf_colorlinks 0
+\pdf_backref section
+\pdf_pdfusetitle 0
+\pdf_quoted_options "hidelinks"
+\papersize a4
+\use_geometry true
+\use_package amsmath 2
+\use_package amssymb 2
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 0
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\use_minted 0
+\use_lineno false
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style polish
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\change_bars false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\docbook_table_output 0
+\docbook_mathml_prefix 1
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+maketitle
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Abstract
+\noindent
+
+\lang croatian
+U radu je opisan proračun simetričnih (tropolnih) kratkih spojeva u transmisionim mrežama i implementiran samostalni program s grafičkim interfejsom zasnovan na frameworku 
+\emph on
+natID
+\emph default
+. Program učitava opis mreže u MATPOWER 
+\family typewriter
+.m
+\family default
+ formatu, formira matricu admitansi 
+\begin_inset Formula $\mathbf{Y}_{\text{bus}}$
+\end_inset
+
+ kao rijetku kompleksnu matricu, te 
+\emph on
+Z-bus
+\emph default
+ metodom računa struju kvara, napone svih sabirnica poslije kvara, struje kroz grane i doprinos pojedinih generatora. Rezultati su verifikovani poređenjem s nezavisnim proračunom u MATLAB-u (
+\begin_inset Formula $\mathbf{Z}=\mathbf{Y}^{-1}$
+\end_inset
+
+) i pokazuju potpuno slaganje. 
+\end_layout
+
+\begin_layout Section
+
+\lang croatian
+Uvod
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Kratki spoj je jedan od najtežih poremećaja u elektroenergetskom sistemu. Pri kratkom spoju dolazi do naglog porasta struje i pada napona, što može oštetiti opremu i ugroziti stabilnost sistema. Proračun kratkih spojeva je stoga osnova za dimenzionisanje prekidača, podešavanje relejne zaštite i provjeru termičke i dinamičke izdržljivosti opreme.
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Ovaj rad se bavi 
+\emph on
+simetričnim
+\emph default
+ kvarom — tropolnim kratkim spojem u kojem su sve tri faze simetrično zahvaćene. Zbog simetrije, analiza se svodi na jednofazni ekvivalent (direktni/pozitivni redoslijed), pa nije potrebno razlaganje na simetrične komponente. Cilj rada je razviti program koji za proizvoljnu transmisionu mrežu (zadanu u MATPOWER formatu) izračunava sve relevantne veličine kratkog spoja i prikazuje ih tabelarno i grafički.
+\end_layout
+
+\begin_layout Section
+
+\lang croatian
+Teorijska osnova
+\end_layout
+
+\begin_layout Subsection
+
+\lang croatian
+Sistem jediničnih vrijednosti (per unit)
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Svi proračuni se izvode u sistemu jediničnih vrijednosti (
+\emph on
+per unit
+\emph default
+, pu), s bazom snage 
+\begin_inset Formula $S_b = \SI{100}{MVA}$
+\end_inset
+
+ i baznim naponom svake naponske razine 
+\begin_inset Formula $U_b$
+\end_inset
+
+. Bazna struja i bazna impedansa su 
+\begin_inset Formula \begin{equation}
+I_b = \frac{S_b}{\sqrt{3}\,U_b}, \qquad Z_b = \frac{U_b^2}{S_b}.
+\end{equation}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+
+\lang croatian
+Matrica admitansi 
+\begin_inset Formula $\mathbf{Y}_{\text{bus}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Mreža se opisuje matricom admitansi sabirnica 
+\begin_inset Formula $\mathbf{Y}_{\text{bus}}$
+\end_inset
+
+ dimenzije 
+\begin_inset Formula $N\times N$
+\end_inset
+
+ (
+\begin_inset Formula $N$
+\end_inset
+
+ — broj sabirnica). Za svaku granu (vod ili transformator) između sabirnica 
+\begin_inset Formula $f$
+\end_inset
+
+ i 
+\begin_inset Formula $t$
+\end_inset
+
+, sa serijskom impedansom 
+\begin_inset Formula $r+jx$
+\end_inset
+
+, polovinom otočnog punjenja voda 
+\begin_inset Formula $b/2$
+\end_inset
+
+, prijenosnim odnosom (tap) 
+\begin_inset Formula $\tau$
+\end_inset
+
+ i faznim pomakom 
+\begin_inset Formula $\theta$
+\end_inset
+
+, definiše se 
+\begin_inset Formula \begin{equation}
+y = \frac{1}{r+jx}, \qquad a = \tau\,e^{j\theta},
+\end{equation}
+\end_inset
+
+a doprinosi grane matrici 
+\begin_inset Formula $\mathbf{Y}_{\text{bus}}$
+\end_inset
+
+ su: 
+\begin_inset Formula \begin{align}
+Y_{ff} &\mathrel{+}= \frac{y + j\tfrac{b}{2}}{a\,a^{*}}, &
+Y_{tt} &\mathrel{+}= y + j\tfrac{b}{2},\\
+Y_{ft} &\mathrel{+}= -\frac{y}{a^{*}}, &
+Y_{tf} &\mathrel{+}= -\frac{y}{a}.
+\end{align}
+\end_inset
+
+Otočni elementi sabirnica (kondenzatori/reaktori) dodaju se na dijagonalu: 
+\begin_inset Formula $Y_{ii}\mathrel{+}=(G_s+jB_s)/S_b$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+
+\lang croatian
+Model generatora
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Da bi proračun kratkog spoja imao fizičkog smisla, generatori se modeliraju kao naponski izvori iza reaktanse prema referentnoj (uzemljenoj) tački. Svaki generator na sabirnici 
+\begin_inset Formula $g$
+\end_inset
+
+ doprinosi dijagonali otočnom admitansom 
+\begin_inset Formula \begin{equation}
+y_g = \frac{1}{j X'_d},
+\end{equation}
+\end_inset
+
+gdje je 
+\begin_inset Formula $X'_d$
+\end_inset
+
+ (tranzijentna reaktansa) na sistemskoj bazi. Prema podacima korištenim u istraživanju (WSCC / Sauer–Pai), podrazumijevana vrijednost je 
+\begin_inset Formula $X'_d = 0{,}0608$
+\end_inset
+
+ pu, uz mogućnost zadavanja vrijednosti po pojedinom generatoru.
+\end_layout
+
+\begin_layout Subsection
+
+\lang croatian
+Z-bus metoda proračuna kvara
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Impedantna matrica je inverz matrice admitansi, 
+\begin_inset Formula $\mathbf{Z}_{\text{bus}}=\mathbf{Y}_{\text{bus}}^{-1}$
+\end_inset
+
+. Umjesto pune inverzije, za kvar na sabirnici 
+\begin_inset Formula $k$
+\end_inset
+
+ rješava se linearni sistem 
+\begin_inset Formula \begin{equation}
+\mathbf{Y}_{\text{bus}}\,\mathbf{z} = \mathbf{e}_k,
+\end{equation}
+\end_inset
+
+gdje je 
+\begin_inset Formula $\mathbf{e}_k$
+\end_inset
+
+ jedinični vektor; rješenje 
+\begin_inset Formula $\mathbf{z}$
+\end_inset
+
+ je 
+\begin_inset Formula $k$
+\end_inset
+
+-ta kolona matrice 
+\begin_inset Formula $\mathbf{Z}_{\text{bus}}$
+\end_inset
+
+, a 
+\begin_inset Formula $Z_{kk}=z_k$
+\end_inset
+
+ je vlastita (driving-point) impedansa sabirnice kvara. Uz pretpostavku ravnog prednapona 
+\begin_inset Formula $V_0=1{,}0$
+\end_inset
+
+ pu i impedanse kvara 
+\begin_inset Formula $Z_f$
+\end_inset
+
+, struja kvara je 
+\begin_inset Formula \begin{equation}
+I_f = \frac{V_0}{Z_{kk}+Z_f},
+\end{equation}
+\end_inset
+
+a naponi svih sabirnica poslije kvara 
+\begin_inset Formula \begin{equation}
+V_i = V_0 - z_i\,I_f .
+\end{equation}
+\end_inset
+
+Struja kroz granu 
+\begin_inset Formula $i\!\to\!j$
+\end_inset
+
+ dobija se iz razlike napona: 
+\begin_inset Formula $I_{ij} = y\,(V_i/a - V_j)$
+\end_inset
+
+. Doprinos pojedinog generatora struji kvara je 
+\begin_inset Formula \begin{equation}
+I_g = \frac{E - V_g}{j X'_d}, \qquad E \approx V_0,
+\end{equation}
+\end_inset
+
+gdje je 
+\begin_inset Formula $V_g$
+\end_inset
+
+ napon na sabirnici generatora poslije kvara. Snaga kratkog spoja na sabirnici 
+\begin_inset Formula $k$
+\end_inset
+
+ je 
+\begin_inset Formula $S_k = \sqrt{3}\,U_b\,I_{f,\text{kA}} = S_b\,|I_f|_{\text{pu}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+
+\lang croatian
+Metodologija i algoritam
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Algoritam proračuna prikazan je na slici
+\begin_inset space ~
+
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:flow"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+
+\end_inset
+
+. Koraci su: 
+\end_layout
+
+\begin_layout Enumerate
+
+\lang croatian
+učitavanje i parsiranje MATPOWER 
+\family typewriter
+.m
+\family default
+ datoteke (sabirnice, generatori, grane); 
+\end_layout
+
+\begin_layout Enumerate
+
+\lang croatian
+formiranje 
+\begin_inset Formula $\mathbf{Y}_{\text{bus}}$
+\end_inset
+
+ (grane, otočni elementi, generatori kao reaktanse); 
+\end_layout
+
+\begin_layout Enumerate
+
+\lang croatian
+faktorizacija 
+\begin_inset Formula $\mathbf{Y}_{\text{bus}}$
+\end_inset
+
+ (rijetka LU dekompozicija); 
+\end_layout
+
+\begin_layout Enumerate
+
+\lang croatian
+za odabranu sabirnicu kvara 
+\begin_inset Formula $k$
+\end_inset
+
+: rješavanje 
+\begin_inset Formula $\mathbf{Y}\mathbf{z}=\mathbf{e}_k$
+\end_inset
+
+, te računanje 
+\begin_inset Formula $I_f$
+\end_inset
+
+, napona, struja grana i doprinosa generatora; 
+\end_layout
+
+\begin_layout Enumerate
+
+\lang croatian
+prikaz rezultata (tabele, grafici, jednopolna shema) i izvoz. 
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename figures/flowchart.png
+	width 52text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Dijagram toka algoritma proračuna kratkog spoja.
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:flow"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+
+\lang croatian
+Implementacija
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Program je razvijen u jeziku 
+\series bold
+C++
+\series default
+ korištenjem frameworka 
+\series bold
+natID
+\series default
+. Sve matrice koriste natID klase: 
+\begin_inset Formula $\mathbf{Y}_{\text{bus}}$
+\end_inset
+
+ je 
+\emph on
+rijetka kompleksna
+\emph default
+ matrica (
+\family typewriter
+sparse::CmplxSolver
+\family default
+), a vektori rezultata koriste 
+\emph on
+puni
+\emph default
+ (dense) tip. Rijetka LU faktorizacija se izvodi jednom, a zatim se za svaku sabirnicu kvara ponovo koristi (mijenja se samo desna strana sistema), što je računski efikasno.
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Programska struktura je podijeljena na računsku jezgru (odvojenu od interfejsa) i grafički interfejs: 
+\end_layout
+
+\begin_layout Itemize
+
+\lang croatian
+
+\family typewriter
+MatpowerParser
+\family default
+ — parsiranje 
+\family typewriter
+.m
+\family default
+ formata; 
+\end_layout
+
+\begin_layout Itemize
+
+\lang croatian
+
+\family typewriter
+ShortCircuitSolver
+\family default
+ — formiranje 
+\begin_inset Formula $\mathbf{Y}_{\text{bus}}$
+\end_inset
+
+, faktorizacija i proračun kvara, struja grana i doprinosa generatora; 
+\end_layout
+
+\begin_layout Itemize
+
+\lang croatian
+GUI (
+\family typewriter
+MainView
+\family default
+ i pomoćne klase) — unos parametara, tabovi s rezultatima, grafici i jednopolna shema crtani preko natID 
+\family typewriter
+Canvas
+\family default
+-a. 
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Projekat je konfigurisan u 
+\series bold
+CMake
+\series default
+-u (Windows i Linux). Interfejs podržava učitavanje mreže, izbor sabirnice kvara, zadavanje reaktanse generatora 
+\begin_inset Formula $X'_d$
+\end_inset
+
+ i impedanse kvara 
+\begin_inset Formula $Z_f$
+\end_inset
+
+, te izvoz rezultata u CSV i slika u PDF/SVG. Slika
+\begin_inset space ~
+
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gui"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+
+\end_inset
+
+ prikazuje glavni prozor s tabelom nivoa kvara.
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename figures/gui_fault_table.png
+	width 90text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Grafički interfejs: nivoi kvara po sabirnicama (test mreža case9).
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gui"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+
+\lang croatian
+Rezultati
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Program je testiran na standardnim MATPOWER mrežama (case5, case9, case30, case118, case300). Kao primjer prikazani su rezultati za mrežu 
+\series bold
+case9
+\series default
+ (WSCC 9 sabirnica, 3 generatora) pri tropolnom kvaru na sabirnici
+\begin_inset space ~
+
+\end_inset
+
+1 (
+\begin_inset Formula $X'_d=0{,}0608$
+\end_inset
+
+ pu, 
+\begin_inset Formula $Z_f=0$
+\end_inset
+
+, ravni prednapon).
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Nivoi kvara po sabirnicama — case9 (kvar na sabirnici 1).
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:fault"
+
+\end_inset
+
+ 
+\begin_inset Tabular 
+<lyxtabular version="3" rows="10" columns="4">
+<features booktabs="true" tabularvalignment="middle" tabularwidth="0pt">
+<column alignment="center" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+Sabirnica 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset Formula $|I_f|$
+\end_inset
+
+ (pu) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset Formula $I_f$
+\end_inset
+
+ (kA) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset Formula $S_k$
+\end_inset
+
+ (MVA)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+1 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+20
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+166 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+3
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+375 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+2016
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+6
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+2 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+20
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+618 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+3
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+450 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+2061
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+8
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+3 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+20
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+580 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+3
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+444 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+2058
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+4 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+13
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+168 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+2
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+204 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+1316
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+8
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+5 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+8
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+667 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+1
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+450 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+866
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+7
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+6 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+13
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+821 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+2
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+313 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+1382
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+7 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+10
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+525 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+1
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+761 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+1052
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+5
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+8 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+13
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+745 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+2
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+300 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+1374
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+5
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+9 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+8
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+990 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+1
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+504 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+899
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Za kvar na sabirnici
+\begin_inset space ~
+
+\end_inset
+
+1 struja kvara iznosi 
+\begin_inset Formula $I_f = 20{,}166$
+\end_inset
+
+ pu 
+\begin_inset Formula $=3{,}375$
+\end_inset
+
+ kA, a snaga kratkog spoja 
+\begin_inset Formula $S_k = 2016{,}6$
+\end_inset
+
+ MVA. Doprinosi generatora dati su u tabeli
+\begin_inset space ~
+
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:gen"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+
+\end_inset
+
+: generator na samoj sabirnici kvara (G1) daje najveći dio struje (79
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+1
+\begin_inset space \thinspace{}
+
+\end_inset
+
+%), dok udaljeni generatori (G2, G3) doprinose po 10
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+5
+\begin_inset space \thinspace{}
+
+\end_inset
+
+%.
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Doprinos generatora struji kvara — case9 (kvar na sabirnici 1).
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:gen"
+
+\end_inset
+
+ 
+\begin_inset Tabular 
+<lyxtabular version="3" rows="4" columns="4">
+<features booktabs="true" tabularvalignment="middle" tabularwidth="0pt">
+<column alignment="center" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<column alignment="right" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+Generator (sabirnica) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset Formula $|I|$
+\end_inset
+
+ (pu) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset Formula $|I|$
+\end_inset
+
+ (kA) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+% doprinosa
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+1 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+16
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+447 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+2
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+752 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+79
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+2 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+2
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+176 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+0
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+364 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+10
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+5
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+3 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+2
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+177 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+0
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+364 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+
+\lang croatian
+10
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+{
+\end_layout
+
+\end_inset
+
+,
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\end_inset
+
+5
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Slika
+\begin_inset space ~
+
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:charts"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+
+\end_inset
+
+ prikazuje grafike snage kvara po sabirnicama i profil napona poslije kvara, a slika
+\begin_inset space ~
+
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:oneline"
+plural "false"
+caps "false"
+noprefix "false"
+nolink "false"
+
+\end_inset
+
+ jednopolnu shemu mreže na kojoj su bojom označeni naponi sabirnica, a debljinom grana struje kroz njih.
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename figures/charts.png
+	width 92text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Snaga kratkog spoja 
+\begin_inset Formula $S_k$
+\end_inset
+
+ po sabirnicama i profil napona 
+\begin_inset Formula $|V|$
+\end_inset
+
+ (kvar na sabirnici 1).
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:charts"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+
+\begin_layout Standard
+
+\lang croatian
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics 
+	filename figures/oneline_app.png
+	width 85text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Jednopolna shema mreže case9 s rezultatima kvara: crvena sabirnica = mjesto kvara, boja = napon, debljina grane = struja.
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:oneline"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+
+\lang croatian
+Verifikacija
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Tačnost proračuna provjerena je nezavisno u MATLAB-u, formiranjem iste matrice 
+\begin_inset Formula $\mathbf{Y}_{\text{bus}}$
+\end_inset
+
+ i računanjem 
+\begin_inset Formula $\mathbf{Z}_{\text{bus}}=\mathbf{Y}^{-1}$
+\end_inset
+
+ (puna inverzija). Vrijednosti 
+\begin_inset Formula $Z_{kk}$
+\end_inset
+
+, struje kvara i struja grana dobijene programom poklapaju se s MATLAB referencom do na četiri decimalna mjesta za sve sabirnice, čime je potvrđena ispravnost implementacije.
+\end_layout
+
+\begin_layout Section
+
+\lang croatian
+Zaključak
+\end_layout
+
+\begin_layout Standard
+
+\lang croatian
+Razvijen je funkcionalan i verifikovan program za proračun simetričnih kratkih spojeva u transmisionim mrežama. Program koristi Z-bus metodu i rijetke kompleksne matrice iz natID frameworka, čime postiže efikasnost i na velikim mrežama (do 300 sabirnica). Pored numeričkih rezultata (struje kvara, naponi, struje grana, doprinos generatora), program nudi grafičku vizualizaciju i izvoz rezultata, što ga čini pogodnim kako za inženjersku upotrebu tako i za nastavne svrhe.
+\end_layout
+
+\begin_layout Bibliography
+
+\lang croatian
+
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label ""
+key "kundur"
+literal "false"
+
+\end_inset
+
+ P. Kundur, 
+\emph on
+Power System Stability and Control
+\emph default
+, McGraw-Hill, 1994. 
+\end_layout
+
+\begin_layout Bibliography
+
+\lang croatian
+
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label ""
+key "sauerpai"
+literal "false"
+
+\end_inset
+
+ P.
+\begin_inset space \thinspace{}
+
+\end_inset
+
+W. Sauer, M.
+\begin_inset space \thinspace{}
+
+\end_inset
+
+A. Pai, 
+\emph on
+Power System Dynamics and Stability
+\emph default
+, 2007. 
+\end_layout
+
+\begin_layout Bibliography
+
+\lang croatian
+
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label ""
+key "matpower"
+literal "false"
+
+\end_inset
+
+ R.
+\begin_inset space \thinspace{}
+
+\end_inset
+
+D. Zimmerman, C.
+\begin_inset space \thinspace{}
+
+\end_inset
+
+E. Murillo-Sánchez, R.
+\begin_inset space \thinspace{}
+
+\end_inset
+
+J. Thomas, 
+\begin_inset Quotes eld
+\end_inset
+
+MATPOWER: Steady-State Operations, Planning and Analysis Tools,
+\begin_inset Quotes prd
+\end_inset
+
+ 
+\emph on
+IEEE Trans. Power Systems
+\emph default
+, vol.
+\begin_inset space ~
+
+\end_inset
+
+26, no.
+\begin_inset space ~
+
+\end_inset
+
+1, 2011. 
+\end_layout
+
+\begin_layout Bibliography
+
+\lang croatian
+
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label ""
+key "grainger"
+literal "false"
+
+\end_inset
+
+ J.
+\begin_inset space \thinspace{}
+
+\end_inset
+
+J. Grainger, W.
+\begin_inset space \thinspace{}
+
+\end_inset
+
+D. Stevenson, 
+\emph on
+Power System Analysis
+\emph default
+, McGraw-Hill. 
+\end_layout
+
+\begin_layout Bibliography
+
+\lang croatian
+
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+label ""
+key "natid"
+literal "false"
+
+\end_inset
+
+ I. Džafić, 
+\emph on
+natID — native Interface Design framework
+\emph default
+, 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+https://github.com/idzafic/natID
+\end_layout
+
+\end_inset
+
+. 
+\end_layout
+
+\end_body
+\end_document
