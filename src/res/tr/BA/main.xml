@@ -1,0 +1,45 @@
+<?xml version='1.0'?>
+<DevRes>
+	<Translations>
+		<Res id="appTitle" tr="SREES 2026 — Proracun kratkih spojeva (simetricne mreze)"/>
+		<Res id="open" tr="Otvori"/>
+		<Res id="openTT" tr="Otvori MATPOWER slucaj (.m)"/>
+		<Res id="openCase" tr="Otvori MATPOWER slucaj"/>
+		<Res id="caseFile" tr="MATPOWER slucaj:"/>
+		<Res id="genReact" tr="Xd' svih generatora (pu):"/>
+		<Res id="faultReact" tr="Reaktansa kvara Zf (pu):"/>
+		<Res id="genSel" tr="Xd' za pojedini gen.:"/>
+		<Res id="setGen" tr="Postavi Xd'"/>
+		<Res id="faultBus" tr="Sabirnica kvara:"/>
+		<Res id="compute" tr="Izracunaj"/>
+		<Res id="exportCsv" tr="Izvezi CSV"/>
+		<Res id="saveResults" tr="Snimi rezultate (CSV)"/>
+		<Res id="computeTT" tr="Izracunaj kratki spoj"/>
+		<Res id="exportCsvTT" tr="Izvezi rezultate u CSV"/>
+		<Res id="exportImg" tr="Izvezi sliku"/>
+		<Res id="exportImgTT" tr="Izvezi Shemu ili Grafik u PDF/SVG"/>
+		<Res id="saveImage" tr="Snimi sliku (PDF ili SVG)"/>
+		<Res id="welcome" tr="Otvori MATPOWER .m fajl, odaberi sabirnicu i klikni 'Izracunaj'."/>
+		<Res id="hBus" tr="Sabirnica"/>
+		<Res id="hZre" tr="Zkk re (pu)"/>
+		<Res id="hZim" tr="Zkk im (pu)"/>
+		<Res id="hIfpu" tr="|If| (pu)"/>
+		<Res id="hIfka" tr="If (kA)"/>
+		<Res id="hSk" tr="Sk (MVA)"/>
+		<Res id="hV" tr="V (pu)"/>
+		<Res id="hAng" tr="Ugao (deg)"/>
+		<Res id="hFrom" tr="Od sabirnice"/>
+		<Res id="hTo" tr="Do sabirnice"/>
+		<Res id="hIpu" tr="|I| (pu)"/>
+		<Res id="hIka" tr="|I| (kA)"/>
+		<Res id="tabFaults" tr="Struje kvara"/>
+		<Res id="tabVolt" tr="Naponi poslije kvara"/>
+		<Res id="tabBranch" tr="Struje grana"/>
+		<Res id="tabChart" tr="Grafici"/>
+		<Res id="tabDiagram" tr="Shema mreze"/>
+		<Res id="tabGen" tr="Doprinos generatora"/>
+		<Res id="tabReport" tr="Izvjestaj"/>
+		<Res id="hGenBus" tr="Generator (sabirnica)"/>
+		<Res id="hPct" tr="% doprinosa"/>
+	</Translations>
+</DevRes>

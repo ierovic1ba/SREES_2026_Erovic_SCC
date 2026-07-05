@@ -1,0 +1,45 @@
+<?xml version='1.0'?>
+<DevRes>
+	<Translations>
+		<Res id="appTitle" tr="SREES 2026 — Short-Circuit Calculation (symmetrical networks)"/>
+		<Res id="open" tr="Open"/>
+		<Res id="openTT" tr="Open a MATPOWER case (.m)"/>
+		<Res id="openCase" tr="Open MATPOWER case"/>
+		<Res id="caseFile" tr="MATPOWER case:"/>
+		<Res id="genReact" tr="Xd' all generators (pu):"/>
+		<Res id="faultReact" tr="Fault reactance Zf (pu):"/>
+		<Res id="genSel" tr="Xd' per generator:"/>
+		<Res id="setGen" tr="Set Xd'"/>
+		<Res id="faultBus" tr="Fault bus:"/>
+		<Res id="compute" tr="Compute"/>
+		<Res id="exportCsv" tr="Export CSV"/>
+		<Res id="saveResults" tr="Save results (CSV)"/>
+		<Res id="computeTT" tr="Compute the short circuit"/>
+		<Res id="exportCsvTT" tr="Export results to CSV"/>
+		<Res id="exportImg" tr="Export image"/>
+		<Res id="exportImgTT" tr="Export the diagram or chart to PDF/SVG"/>
+		<Res id="saveImage" tr="Save image (PDF or SVG)"/>
+		<Res id="welcome" tr="Open a MATPOWER .m file, pick a bus and click 'Compute'."/>
+		<Res id="hBus" tr="Bus"/>
+		<Res id="hZre" tr="Zkk re (pu)"/>
+		<Res id="hZim" tr="Zkk im (pu)"/>
+		<Res id="hIfpu" tr="|If| (pu)"/>
+		<Res id="hIfka" tr="If (kA)"/>
+		<Res id="hSk" tr="Sk (MVA)"/>
+		<Res id="hV" tr="V (pu)"/>
+		<Res id="hAng" tr="Angle (deg)"/>
+		<Res id="hFrom" tr="From bus"/>
+		<Res id="hTo" tr="To bus"/>
+		<Res id="hIpu" tr="|I| (pu)"/>
+		<Res id="hIka" tr="|I| (kA)"/>
+		<Res id="tabFaults" tr="Fault currents"/>
+		<Res id="tabVolt" tr="Post-fault voltages"/>
+		<Res id="tabBranch" tr="Branch currents"/>
+		<Res id="tabChart" tr="Charts"/>
+		<Res id="tabDiagram" tr="Network diagram"/>
+		<Res id="tabGen" tr="Generator contribution"/>
+		<Res id="tabReport" tr="Report"/>
+		<Res id="hGenBus" tr="Generator (bus)"/>
+		<Res id="hPct" tr="% contribution"/>
+	</Translations>
+</DevRes>

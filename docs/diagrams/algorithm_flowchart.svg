@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 792" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 z" fill="#2c5f9e"/>
+    </marker>
+    <marker id="arrowL" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 z" fill="#9e5b2c"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="560" height="792" fill="#ffffff"/>
+  <text x="280" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="#1a2b45">
+    Proracun kratkih spojeva — dijagram toka</text>
+
+  <!-- loop container (drawn first, behind) -->
+  <rect x="30" y="398" width="500" height="232" rx="10" fill="#fbf3ea" stroke="#c99a63" stroke-dasharray="6 4"/>
+  <text x="44" y="418" font-size="12.5" font-style="italic" fill="#9e5b2c">petlja po sabirnicama  k = 1 .. N</text>
+
+  <!-- connectors -->
+  <g stroke="#2c5f9e" stroke-width="2" fill="none">
+    <line x1="280" y1="102" x2="280" y2="122" marker-end="url(#arrow)"/>
+    <line x1="280" y1="170" x2="280" y2="190" marker-end="url(#arrow)"/>
+    <line x1="280" y1="254" x2="280" y2="274" marker-end="url(#arrow)"/>
+    <line x1="280" y1="322" x2="280" y2="342" marker-end="url(#arrow)"/>
+    <line x1="280" y1="480" x2="280" y2="500" marker-end="url(#arrow)"/>
+    <line x1="280" y1="548" x2="280" y2="568" marker-end="url(#arrow)"/>
+    <line x1="280" y1="630" x2="280" y2="656" marker-end="url(#arrow)"/>
+    <line x1="280" y1="724" x2="280" y2="744" marker-end="url(#arrow)"/>
+  </g>
+  <!-- return arrow (loop back) -->
+  <path d="M470,592 C520,592 520,388 300,388" fill="none" stroke="#9e5b2c" stroke-width="2" marker-end="url(#arrowL)"/>
+
+  <!-- boxes -->
+  <g font-size="14" fill="#14213d">
+    <!-- terminator start -->
+    <rect x="60" y="56" width="440" height="46" rx="23" fill="#dfeaf7" stroke="#2c5f9e" stroke-width="1.6"/>
+    <text x="280" y="84" text-anchor="middle" font-weight="600">Ucitaj MATPOWER .m fajl</text>
+
+    <rect x="60" y="124" width="440" height="46" rx="6" fill="#eaf2fb" stroke="#2c5f9e" stroke-width="1.6"/>
+    <text x="280" y="152" text-anchor="middle">Parsiraj mrezu: sabirnice, generatori, grane</text>
+
+    <rect x="60" y="190" width="440" height="64" rx="6" fill="#eaf2fb" stroke="#2c5f9e" stroke-width="1.6"/>
+    <text x="280" y="214" text-anchor="middle">Izgradi Y_bus (rijetka kompleksna matrica)</text>
+    <text x="280" y="234" text-anchor="middle" font-size="12" fill="#4a5b74">grane: 1/(r+jx), jb/2, tap · e^(jθ);  santovi;  generatori: 1/(jXd')</text>
+
+    <rect x="60" y="274" width="440" height="46" rx="6" fill="#eaf2fb" stroke="#2c5f9e" stroke-width="1.6"/>
+    <text x="280" y="302" text-anchor="middle">Faktorizuj Y_bus  (sparse LU — natID)</text>
+
+    <!-- loop header -->
+    <rect x="60" y="342" width="440" height="46" rx="6" fill="#f3e3cf" stroke="#c99a63" stroke-width="1.6"/>
+    <text x="280" y="370" text-anchor="middle" font-weight="600">Za sabirnicu k: postavi RHS e_k</text>
+
+    <rect x="70" y="434" width="420" height="46" rx="6" fill="#eaf2fb" stroke="#2c5f9e" stroke-width="1.6"/>
+    <text x="280" y="462" text-anchor="middle">Rijesi  Y_bus · z = e_k   →   kolona k matrice Z_bus</text>
+
+    <rect x="70" y="500" width="420" height="48" rx="6" fill="#eaf2fb" stroke="#2c5f9e" stroke-width="1.6"/>
+    <text x="280" y="530" text-anchor="middle">I_f = V0 / (Z_kk + Z_f)</text>
+
+    <rect x="70" y="568" width="420" height="52" rx="6" fill="#eaf2fb" stroke="#2c5f9e" stroke-width="1.6"/>
+    <text x="280" y="590" text-anchor="middle">Naponi: V_i = V0 − z_i · I_f</text>
+    <text x="280" y="609" text-anchor="middle">Struje grana: I_ij = y_ij (V_i/a − V_j)</text>
+
+    <rect x="60" y="656" width="440" height="46" rx="6" fill="#eaf2fb" stroke="#2c5f9e" stroke-width="1.6"/>
+    <text x="280" y="684" text-anchor="middle">Prikazi tabele  /  Izvezi rezultate u CSV</text>
+
+    <!-- terminator end -->
+    <rect x="60" y="744" width="440" height="42" rx="21" fill="#dfeaf7" stroke="#2c5f9e" stroke-width="1.6"/>
+    <text x="280" y="770" text-anchor="middle" font-weight="600">Kraj</text>
+  </g>
+</svg>

@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="ld" markerWidth="12" markerHeight="12" refX="6" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 z" fill="#b23b3b"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="700" fill="#ffffff"/>
+  <text x="450" y="34" text-anchor="middle" font-size="21" font-weight="700" fill="#1a2b45">
+    WSCC 9-sabirnicka mreza (case9) — jednopolna shema</text>
+
+  <!-- ================= transmission lines (ring 4-5-6-7-8-9-4) ================= -->
+  <g stroke="#3a4a63" stroke-width="2.4" fill="none">
+    <line x1="315" y1="170" x2="200" y2="350"/>
+    <line x1="200" y1="350" x2="315" y2="520"/>
+    <line x1="315" y1="520" x2="585" y2="520"/>
+    <line x1="585" y1="520" x2="700" y2="350"/>
+    <line x1="700" y1="350" x2="585" y2="170"/>
+    <line x1="585" y1="170" x2="315" y2="170"/>
+  </g>
+  <!-- line reactance labels -->
+  <g font-size="11.5" fill="#5b6b84">
+    <text x="240" y="255">x=0.092</text>
+    <text x="240" y="445">x=0.170</text>
+    <text x="435" y="537">x=0.101</text>
+    <text x="650" y="445">x=0.072</text>
+    <text x="655" y="255">x=0.161</text>
+    <text x="435" y="162">x=0.085</text>
+  </g>
+
+  <!-- ================= generator legs (with transformers) ================= -->
+  <g stroke="#3a4a63" stroke-width="2.4">
+    <line x1="315" y1="60" x2="315" y2="170"/>   <!-- G1 - T - bus4 -->
+    <line x1="845" y1="350" x2="700" y2="350"/>  <!-- G2 - T - bus8 -->
+    <line x1="315" y1="630" x2="315" y2="520"/>  <!-- G3 - T - bus6 -->
+  </g>
+
+  <!-- transformer symbols (two circles) -->
+  <g fill="none" stroke="#1a2b45" stroke-width="2">
+    <circle cx="315" cy="120" r="11"/><circle cx="315" cy="132" r="11"/>
+    <circle cx="775" cy="350" r="11"/><circle cx="787" cy="350" r="11"/>
+    <circle cx="315" cy="568" r="11"/><circle cx="315" cy="580" r="11"/>
+  </g>
+  <g font-size="10.5" fill="#5b6b84">
+    <text x="332" y="130">T1  x=0.0576</text>
+    <text x="760" y="335">T2  x=0.0625</text>
+    <text x="332" y="578">T3  x=0.0586</text>
+  </g>
+
+  <!-- ================= buses (busbars) ================= -->
+  <g stroke="#14213d" stroke-width="7" stroke-linecap="round">
+    <line x1="288" y1="170" x2="342" y2="170"/> <!-- bus4 -->
+    <line x1="173" y1="350" x2="227" y2="350"/> <!-- bus5 -->
+    <line x1="288" y1="520" x2="342" y2="520"/> <!-- bus6 -->
+    <line x1="558" y1="520" x2="612" y2="520"/> <!-- bus7 -->
+    <line x1="673" y1="350" x2="727" y2="350"/> <!-- bus8 -->
+    <line x1="558" y1="170" x2="612" y2="170"/> <!-- bus9 -->
+    <line x1="288" y1="98"  x2="342" y2="98"/>  <!-- bus1 -->
+    <line x1="818" y1="350" x2="872" y2="350"/> <!-- bus2 -->
+    <line x1="288" y1="602" x2="342" y2="602"/> <!-- bus3 -->
+  </g>
+  <g font-size="13" font-weight="700" fill="#14213d">
+    <text x="350" y="166">Bus 4</text>
+    <text x="150" y="340" text-anchor="end">Bus 5</text>
+    <text x="350" y="516">Bus 6</text>
+    <text x="620" y="516">Bus 7</text>
+    <text x="735" y="346">Bus 8</text>
+    <text x="620" y="166">Bus 9</text>
+    <text x="350" y="94">Bus 1</text>
+    <text x="810" y="340" text-anchor="end">Bus 2</text>
+    <text x="350" y="598">Bus 3</text>
+  </g>
+
+  <!-- ================= generators ================= -->
+  <g fill="#eaf2fb" stroke="#2c5f9e" stroke-width="2">
+    <circle cx="315" cy="60" r="22"/>
+    <circle cx="845" cy="350" r="22"/>
+    <circle cx="315" cy="630" r="22"/>
+  </g>
+  <g fill="none" stroke="#2c5f9e" stroke-width="1.8">
+    <path d="M305,60 q5,-9 10,0 q5,9 10,0"/>
+    <path d="M835,350 q5,-9 10,0 q5,9 10,0"/>
+    <path d="M305,630 q5,-9 10,0 q5,9 10,0"/>
+  </g>
+  <g font-size="13" font-weight="700" fill="#2c5f9e">
+    <text x="283" y="46" text-anchor="end">G1</text>
+    <text x="845" y="404" text-anchor="middle">G2</text>
+    <text x="283" y="662" text-anchor="end">G3</text>
+  </g>
+  <g font-size="10.5" fill="#5b6b84">
+    <text x="283" y="60" text-anchor="end">Xd'=0.0608</text>
+    <text x="845" y="418" text-anchor="middle">Xd'=0.1198</text>
+    <text x="283" y="676" text-anchor="end">Xd'=0.1813</text>
+  </g>
+
+  <!-- ================= loads (buses 5, 7, 9) ================= -->
+  <g stroke="#b23b3b" stroke-width="2.4">
+    <line x1="200" y1="350" x2="120" y2="350" marker-end="url(#ld)"/>
+    <line x1="585" y1="520" x2="585" y2="610" marker-end="url(#ld)"/>
+    <line x1="585" y1="170" x2="585" y2="82"  marker-end="url(#ld)"/>
+  </g>
+  <g font-size="12" fill="#b23b3b" font-weight="600">
+    <text x="112" y="342" text-anchor="end">90 + j30 MVA</text>
+    <text x="585" y="628" text-anchor="middle">100 + j35 MVA</text>
+    <text x="585" y="74" text-anchor="middle">125 + j50 MVA</text>
+  </g>
+
+  <!-- ================= legend ================= -->
+  <g font-size="12" fill="#333">
+    <rect x="30" y="600" width="250" height="82" rx="8" fill="#f7f9fc" stroke="#c3ccda"/>
+    <circle cx="52" cy="622" r="10" fill="#eaf2fb" stroke="#2c5f9e" stroke-width="1.6"/>
+    <text x="70" y="626">generator (iza reaktanse Xd')</text>
+    <circle cx="47" cy="647" r="7" fill="none" stroke="#1a2b45" stroke-width="1.6"/>
+    <circle cx="57" cy="647" r="7" fill="none" stroke="#1a2b45" stroke-width="1.6"/>
+    <text x="70" y="651">transformator</text>
+    <line x1="42" y1="670" x2="62" y2="670" stroke="#b23b3b" stroke-width="2.2" marker-end="url(#ld)"/>
+    <text x="70" y="674">potrosac (teret)</text>
+  </g>
+</svg>

@@ -1,0 +1,9 @@
+<?xml version='1.0'?>
+<DevRes>
+	<Images>
+		<Res id="imgOpen" path="Common/Icons/openSave/open64.png"/>
+		<Res id="imgCompute" path="Common/Icons/Formula/Play48_Light.png"/>
+		<Res id="imgSaveCsv" path="Common/Icons/openSave/save64.png"/>
+		<Res id="imgExportImg" path="Common/Icons/export48.png"/>
+	</Images>
+</DevRes>
