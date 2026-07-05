@@ -40,3 +40,15 @@ Thumbs.db
 
 # natID local paths
 natID.RAMDisk/
+
+# LaTeX auxiliary files (keep .tex and .pdf)
+*.aux
+*.log
+*.out
+*.toc
+*.nav
+*.snm
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
