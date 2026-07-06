@@ -214,20 +214,21 @@ private:
 	// reloading a TableEdit from inside its selection event corrupts it (adds rows).
 	void fillFaultTable(const Results& R)
 	{
-		_pgFault._pDS->removeAll();
+		_pgFault._table.clean();          // clear rendered rows (not just the data set)
+		_pgFault._table.beginUpdate();
 		for (int i = 0; i < (int)R._perBus.size(); ++i)
 		{
 			const FaultResult& r = R._perBus[i];
-			dp::IDataSet::Row row = _pgFault._pDS->getEmptyRow();
+			auto& row = _pgFault._table.getEmptyRow();
 			row[0] = (td::INT4)r._faultBusId;
 			row[1] = r._Zkk.real();
 			row[2] = r._Zkk.imag();
 			row[3] = std::abs(r._Ifpu);
 			row[4] = r._IfkA;
 			row[5] = r._faultMVA;
-			_pgFault._pDS->push_back();
+			_pgFault._table.push_back();
 		}
-		_pgFault._table.reload();
+		_pgFault._table.endUpdate();
 		if (R._sel._faultBusIndex >= 0) // select the analysed bus row (silent: no message)
 			_pgFault._table.selectRow(R._sel._faultBusIndex, false, true);
 
@@ -244,43 +245,46 @@ private:
 	// table's selection handler because it does NOT touch the fault table itself.
 	void fillSelected(const Results& R)
 	{
-		_pgVolt._pDS->removeAll();
+		_pgVolt._table.clean();
+		_pgVolt._table.beginUpdate();
 		for (int i = 0; i < _mpc.size(); ++i)
 		{
 			const td::cmplx& v = R._sel._busV[i];
 			double mag = std::abs(v);
 			double ang = std::atan2(v.imag(), v.real()) * 180.0 / 3.14159265358979323846;
-			dp::IDataSet::Row row = _pgVolt._pDS->getEmptyRow();
+			auto& row = _pgVolt._table.getEmptyRow();
 			row[0] = (td::INT4)_mpc._buses[i]._id;
 			row[1] = mag;
 			row[2] = ang;
-			_pgVolt._pDS->push_back();
+			_pgVolt._table.push_back();
 		}
-		_pgVolt._table.reload();
+		_pgVolt._table.endUpdate();
 
-		_pgBranch._pDS->removeAll();
+		_pgBranch._table.clean();
+		_pgBranch._table.beginUpdate();
 		for (const BranchFault& b : R._branches)
 		{
-			dp::IDataSet::Row row = _pgBranch._pDS->getEmptyRow();
+			auto& row = _pgBranch._table.getEmptyRow();
 			row[0] = (td::INT4)b._fbus;
 			row[1] = (td::INT4)b._tbus;
 			row[2] = b._Ipu;
 			row[3] = b._IkA;
-			_pgBranch._pDS->push_back();
+			_pgBranch._table.push_back();
 		}
-		_pgBranch._table.reload();
+		_pgBranch._table.endUpdate();
 
-		_pgGen._pDS->removeAll();
+		_pgGen._table.clean();
+		_pgGen._table.beginUpdate();
 		for (const GenContribution& g : R._genContrib)
 		{
-			dp::IDataSet::Row row = _pgGen._pDS->getEmptyRow();
+			auto& row = _pgGen._table.getEmptyRow();
 			row[0] = (td::INT4)g._bus;
 			row[1] = g._Ipu;
 			row[2] = g._IkA;
 			row[3] = g._percent;
-			_pgGen._pDS->push_back();
+			_pgGen._table.push_back();
 		}
-		_pgGen._table.reload();
+		_pgGen._table.endUpdate();
 
 		int worstIdx; double worstSk; findWorst(R, worstIdx, worstSk);
 		std::vector<std::pair<int, double>> faultBars, voltBars;
@@ -352,10 +356,10 @@ private:
 			_cmbGen.selectIndex(0);
 		showGenXd();
 
-		_pgFault._pDS->removeAll();  _pgFault._table.reload();
-		_pgVolt._pDS->removeAll();   _pgVolt._table.reload();
-		_pgBranch._pDS->removeAll(); _pgBranch._table.reload();
-		_pgGen._pDS->removeAll();    _pgGen._table.reload();
+		_pgFault._table.clean();
+		_pgVolt._table.clean();
+		_pgBranch._table.clean();
+		_pgGen._table.clean();
 		setSummary(td::String(""));
 
 		td::String info;
