@@ -45,11 +45,12 @@ protected:
 		if (data.empty())
 			return;
 
-		double maxV = 1e-12;
+		double dataMax = 1e-12;
 		for (const auto& d : data)
-			maxV = std::max(maxV, d.second);
+			dataMax = std::max(dataMax, d.second);
 		if (voltageMode)
-			maxV = std::max(maxV, 1.05);
+			dataMax = std::max(dataMax, 1.05);
+		double axisMax = dataMax * 1.15; // headroom so the tallest bar never touches the top edge
 
 		double mL = x0 + 48, mR = x1 - 10, mT = y0 + 26, mB = y1 - 22;
 		double W = mR - mL, H = mB - mT;
@@ -61,16 +62,17 @@ protected:
 
 		if (voltageMode)
 		{
-			double y1pu = mB - H * (1.0 / maxV);
+			double y1pu = mB - H * (1.0 / axisMax);
 			gui::Shape::drawLine(gui::Point(mL, y1pu), gui::Point(mR, y1pu),
 				td::ColorID::DarkOrange, 1, td::LinePattern::Dash);
 		}
 
 		double bw = W / (double)data.size();
+		bool valueLabels = (data.size() <= 20); // show exact value on each bar for small cases
 		for (size_t i = 0; i < data.size(); ++i)
 		{
 			double val = data[i].second;
-			double h = H * (val / maxV);
+			double h = H * (val / axisMax);
 			gui::Rect r(mL + i * bw + 0.15 * bw, mB - h, mL + (i + 1) * bw - 0.15 * bw, mB);
 
 			td::ColorID col;
@@ -83,6 +85,15 @@ protected:
 				col = td::ColorID::DarkCyan;
 			gui::Shape::drawRect(r, col);
 
+			if (valueLabels)
+			{
+				td::String vlbl;
+				vlbl.format(voltageMode ? "%.3f" : "%.0f", val);
+				gui::DrawableString::draw(vlbl, gui::Rect(mL + i * bw, mB - h - 17, mL + (i + 1) * bw, mB - h - 1),
+					gui::Font::ID::SystemNormal, td::ColorID::SysText,
+					td::TextAlignment::Center, td::VAlignment::Center, td::TextEllipsize::None);
+			}
+
 			if (data.size() <= 40)
 			{
 				td::String lbl;
@@ -92,9 +103,11 @@ protected:
 			}
 		}
 
+		// y-axis reference label = actual data maximum, at the top of the tallest bar
 		td::String maxLbl;
-		maxLbl.format(voltageMode ? "%.2f" : "%.0f", maxV);
-		gui::DrawableString::draw(maxLbl, gui::Rect(x0, mT - 2, mL - 3, mT + 16),
+		maxLbl.format(voltageMode ? "%.2f" : "%.0f", dataMax);
+		double yTop = mB - H * (dataMax / axisMax);
+		gui::DrawableString::draw(maxLbl, gui::Rect(x0, yTop - 9, mL - 3, yTop + 9),
 			gui::Font::ID::SystemNormal, td::ColorID::SysText, td::TextAlignment::Right);
 	}
 

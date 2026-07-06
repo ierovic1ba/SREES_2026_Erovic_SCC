@@ -197,14 +197,22 @@ private:
 		return true;
 	}
 
-	void fillTables(const Results& R)
+	void findWorst(const Results& R, int& worstIdx, double& worstSk)
+	{
+		worstIdx = 0; worstSk = -1.0;
+		for (int i = 0; i < (int)R._perBus.size(); ++i)
+			if (R._perBus[i]._faultMVA > worstSk) { worstSk = R._perBus[i]._faultMVA; worstIdx = i; }
+	}
+
+	// Per-bus fault levels do not depend on the selected bus. Only filled on a full
+	// compute -- NEVER from the fault table's own selection handler, because
+	// reloading a TableEdit from inside its selection event corrupts it (adds rows).
+	void fillFaultTable(const Results& R)
 	{
 		_pgFault._pDS->removeAll();
-		int worstIdx = 0; double worstSk = -1.0;
 		for (int i = 0; i < (int)R._perBus.size(); ++i)
 		{
 			const FaultResult& r = R._perBus[i];
-			if (r._faultMVA > worstSk) { worstSk = r._faultMVA; worstIdx = i; }
 			dp::IDataSet::Row row = _pgFault._pDS->getEmptyRow();
 			row[0] = (td::INT4)r._faultBusId;
 			row[1] = r._Zkk.real();
@@ -215,9 +223,22 @@ private:
 			_pgFault._pDS->push_back();
 		}
 		_pgFault._table.reload();
-		if (R._sel._faultBusIndex >= 0) // select the analysed bus row (silent: no message -> no recursion)
+		if (R._sel._faultBusIndex >= 0) // select the analysed bus row (silent: no message)
 			_pgFault._table.selectRow(R._sel._faultBusIndex, false, true);
 
+		int worstIdx; double worstSk; findWorst(R, worstIdx, worstSk);
+		if (!R._perBus.empty())
+		{
+			td::String sum;
+			sum.format("Najveca snaga kvara Sk = %.1f MVA  (na sabirnici %d)", worstSk, R._perBus[worstIdx]._faultBusId);
+			setSummary(sum);
+		}
+	}
+
+	// Results that depend on the selected fault bus. Safe to call from the fault
+	// table's selection handler because it does NOT touch the fault table itself.
+	void fillSelected(const Results& R)
+	{
 		_pgVolt._pDS->removeAll();
 		for (int i = 0; i < _mpc.size(); ++i)
 		{
@@ -256,14 +277,7 @@ private:
 		}
 		_pgGen._table.reload();
 
-		if (!R._perBus.empty())
-		{
-			td::String sum;
-			sum.format("Najveca snaga kvara Sk = %.1f MVA  (na sabirnici %d)", worstSk, R._perBus[worstIdx]._faultBusId);
-			setSummary(sum);
-		}
-
-		// feed the charts
+		int worstIdx; double worstSk; findWorst(R, worstIdx, worstSk);
 		std::vector<std::pair<int, double>> faultBars, voltBars;
 		faultBars.reserve(R._perBus.size());
 		for (const FaultResult& r : R._perBus)
@@ -276,6 +290,12 @@ private:
 		_pgReport._canvas.setReport(_leFile.getText(), _mpc._baseMVA,
 			R._opt._genReactance, R._opt._faultReactance, R._selBusId, R._sel,
 			R._perBus, R._genContrib, worstSk, R._perBus[worstIdx]._faultBusId);
+	}
+
+	void fillTables(const Results& R)
+	{
+		fillFaultTable(R);
+		fillSelected(R);
 	}
 
 	void doOpen()
@@ -449,18 +469,6 @@ private:
 		setStatus(st);
 	}
 
-	// clicking a bus row in the fault table re-analyses that bus (voltages, branch
-	// currents, diagram, chart all update for the newly selected fault bus)
-	void onFaultRowSelected(int row)
-	{
-		if (!_loaded || row < 0 || row >= _mpc.size())
-			return;
-		if (_cmbBus.getSelectedIndex() == row)
-			return; // already analysing this bus
-		_cmbBus.selectIndex(row);
-		compute();
-	}
-
 	// export the currently visible canvas tab (chart / diagram / report) to PDF or SVG
 	void doExportImage()
 	{
@@ -500,7 +508,9 @@ private:
 		_btnExport.onClick([this] { doExport(); });
 		_btnSetGen.onClick([this] { setGenXd(); });
 		_cmbGen.onChangedSelection([this] { showGenXd(); });
-		_pgFault._table.onChangedSelection([this](td::INT4 row) { onFaultRowSelected((int)row); });
+		// (the fault bus is chosen via the combo box + 'Izracunaj'; clicking a table
+		//  row is intentionally not wired -- reloading a TableEdit from inside its own
+		//  selection event corrupts it)
 	}
 
 public:

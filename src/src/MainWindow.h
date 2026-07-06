@@ -26,7 +26,7 @@ public:
 	}
 
 protected:
-	// without this, the window will not close (default shouldClose() returns false)
+	// without this override the window would not close (default shouldClose() returns false)
 	bool shouldClose() override { return true; }
 	void onClose() override { gui::Window::onClose(); }
 };
