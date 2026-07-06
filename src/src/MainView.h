@@ -461,17 +461,18 @@ private:
 		compute();
 	}
 
-	// export the currently visible canvas tab (chart or diagram) to PDF or SVG
+	// export the currently visible canvas tab (chart / diagram / report) to PDF or SVG
 	void doExportImage()
 	{
-		gui::BaseView* cur = _tabs.getCurrentView();
+		// tab order: 0 fault, 1 volt, 2 branch, 3 gen, 4 chart, 5 diagram, 6 report
+		int pos = _tabs.getCurrentViewPos();
 		gui::Canvas* pCanvas = nullptr;
-		if (cur == &_pgChart)        pCanvas = &_pgChart._canvas;
-		else if (cur == &_pgDiagram) pCanvas = &_pgDiagram._canvas;
-		else if (cur == &_pgReport)  pCanvas = &_pgReport._canvas;
+		if (pos == 4)      pCanvas = &_pgChart._canvas;
+		else if (pos == 5) pCanvas = &_pgDiagram._canvas;
+		else if (pos == 6) pCanvas = &_pgReport._canvas;
 		if (!pCanvas)
 		{
-			setStatus(td::String("Za izvoz slike otvori tab 'Grafici', 'Shema mreze' ili 'Izvjestaj'."));
+			setStatus(td::String("Za izvoz slike prvo otvori tab 'Grafici', 'Shema mreze' ili 'Izvjestaj', pa klikni Izvezi sliku."));
 			return;
 		}
 		gui::SaveFileDialog::show(this, tr("saveImage"), "*.pdf", 9000, [this, pCanvas](gui::FileDialog* pDlg)
@@ -483,6 +484,7 @@ private:
 				return;
 			std::string s = fn.c_str();
 			bool svg = (s.size() >= 4 && s.compare(s.size() - 4, 4, ".svg") == 0);
+			// export the whole model (each canvas provides getModelSize)
 			bool ok = svg ? pCanvas->exportToSVG(fn, false) : pCanvas->exportToPDF(fn, false);
 			td::String st;
 			if (ok) st.format("Slika snimljena: %s", fn.c_str());

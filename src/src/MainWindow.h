@@ -24,4 +24,9 @@ public:
 		_mainView.setStatusBar(&_statusBar);
 		forwardMessagesTo(&_mainView); // route menu/toolbar messages to the view
 	}
+
+protected:
+	// without this, the window will not close (default shouldClose() returns false)
+	bool shouldClose() override { return true; }
+	void onClose() override { gui::Window::onClose(); }
 };

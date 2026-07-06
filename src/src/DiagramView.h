@@ -26,6 +26,7 @@ class DiagramView : public gui::Canvas
 	double _maxI      = 1.0;
 	int    _faultNode = -1;
 	gui::Shape _circle;
+	gui::Size  _sz; // last known on-screen size (fallback for export contexts)
 
 	static constexpr double kPi = 3.14159265358979323846;
 
@@ -39,6 +40,7 @@ public:
 	DiagramView() : gui::Canvas()
 	{
 		_circle.createCircle(gui::Circle(0, 0, 1), 1.5f);
+		_sz.width = 1000; _sz.height = 680;
 	}
 
 	void setNetwork(const MatpowerCase& mpc, const FaultResult& sel,
@@ -109,10 +111,15 @@ protected:
 			td::ColorID::SysText, td::TextAlignment::Left, td::VAlignment::Center);
 	}
 
+	// required so Canvas::exportToPDF/SVG works (uses the cached on-screen size)
+	bool getModelSize(gui::Size& sz) const override { sz = _sz; return true; }
+
 	void onDraw(const gui::Rect&) override
 	{
 		gui::Size sz;
 		getSize(sz);
+		if (sz.width > 20 && sz.height > 20) _sz = sz; // cache live size
+		else sz = _sz;                                 // export / not-yet-realized
 		int n = (int)_nodes.size();
 
 		if (n == 0)

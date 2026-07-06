@@ -19,8 +19,9 @@ class ChartView : public gui::Canvas
 	std::vector<std::pair<int, double>> _volt;  // (busId, |V| pu)
 	int _highlight  = -1;
 	int _faultBusId = 0;
+	gui::Size _sz; // last known on-screen size (fallback for export contexts)
 public:
-	ChartView() : gui::Canvas() {}
+	ChartView() : gui::Canvas() { _sz.width = 980; _sz.height = 620; }
 
 	void setData(const std::vector<std::pair<int, double>>& fault,
 	             const std::vector<std::pair<int, double>>& volt,
@@ -97,10 +98,15 @@ protected:
 			gui::Font::ID::SystemNormal, td::ColorID::SysText, td::TextAlignment::Right);
 	}
 
+	// required so Canvas::exportToPDF/SVG works (uses the cached on-screen size)
+	bool getModelSize(gui::Size& sz) const override { sz = _sz; return true; }
+
 	void onDraw(const gui::Rect&) override
 	{
 		gui::Size sz;
 		getSize(sz);
+		if (sz.width > 20 && sz.height > 20) _sz = sz; // cache live size
+		else sz = _sz;                                 // export / not-yet-realized
 		double midY = sz.height / 2.0;
 
 		td::String t1("Snaga kvara Sk [MVA] po sabirnicama");
