@@ -2,7 +2,7 @@ PREZENTACIJA - SREES 2026
 Proracun kratkih spojeva za transmisione mreze (simetricne mreze)
 Ilhan Erovic
 
-VRIJEME POTREBNO ZA PREZENTACIJU: ~6-7 minuta (u okviru 5-8 min).
+VRIJEME POTREBNO ZA PREZENTACIJU: ~7 minuta (u okviru 5-8 min).
 
 Okvirni raspored po slajdovima:
   1. Naslovna .................................. 0:15
@@ -17,7 +17,7 @@ Okvirni raspored po slajdovima:
  10. Jednopolna shema ......................... 0:30
  11. Verifikacija i zakljucak ................. 0:45
                                         ------------
-                                 UKUPNO   ~ 6:35 min
+                                 UKUPNO   ~ 7:20 min
 
 FORMAT:
   - presentation.tex  -> Beamer prezentacija (LaTeX). Kompajlira se u PDF

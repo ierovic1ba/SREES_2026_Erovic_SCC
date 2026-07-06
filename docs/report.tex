@@ -135,11 +135,12 @@ Algoritam proračuna prikazan je na slici~\ref{fig:flow}. Koraci su:
 
 \section{Implementacija}
 Program je razvijen u jeziku \textbf{C++} korištenjem frameworka \textbf{natID}.
-Sve matrice koriste natID klase: $\mathbf{Y}_{\text{bus}}$ je \emph{rijetka
-kompleksna} matrica (\texttt{sparse::CmplxSolver}), a vektori rezultata koriste
-\emph{puni} (dense) tip. Rijetka LU faktorizacija se izvodi jednom, a zatim se
-za svaku sabirnicu kvara ponovo koristi (mijenja se samo desna strana sistema),
-što je računski efikasno.
+Jedina matrica u proračunu --- matrica admitansi $\mathbf{Y}_{\text{bus}}$ ---
+realizovana je kao natID \emph{rijetka kompleksna} matrica
+(\texttt{sparse::CmplxSolver}). Rijetka LU faktorizacija se izvodi jednom, a
+zatim se za svaku sabirnicu kvara ponovo koristi (mijenja se samo desna strana
+sistema), što je računski efikasno. Vektori rezultata (naponi, struje) čuvaju se
+u standardnim kontejnerima.
 
 Programska struktura je podijeljena na računsku jezgru (odvojenu od interfejsa) i
 grafički interfejs:
@@ -170,7 +171,7 @@ case118, case300). Kao primjer prikazani su rezultati za mrežu \textbf{case9}
 
 \begin{table}[H]
   \centering
-  \caption{Nivoi kvara po sabirnicama --- case9 (kvar na sabirnici 1).}
+  \caption{Nivoi kvara po sabirnicama --- case9 (tropolni kvar zasebno na svakoj sabirnici).}
   \label{tab:fault}
   \begin{tabular}{crrr}
     \toprule

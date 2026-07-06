@@ -13,7 +13,7 @@ i proračunava simetrični (tropolni) kratki spoj **Z-bus** metodom: rješavanje
 `Y_bus · z = e_k` dobija se k-ta kolona Z_busa, pa struja kvara `I_f = V_k(0)/Z_kk`
 i naponi svih sabirnica poslije kvara. Prednaponi: flat start 1.0∠0° pu.
 
-Sve matrice koriste obavezne natID klase: **sparse** (Y_bus) i **dense** (vektori).
+Matrica admitansi **Y_bus** (jedina matrica u proračunu) realizovana je kao natID **rijetka (sparse)** kompleksna matrica; vektori rezultata čuvaju se u standardnim kontejnerima.
 
 ## Struktura repozitorija
 

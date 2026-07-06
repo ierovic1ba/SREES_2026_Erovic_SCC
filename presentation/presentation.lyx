@@ -782,19 +782,15 @@ CMake
 \begin_layout Itemize
 
 \lang croatian
-Sve matrice = natID klase: 
+
 \begin_inset Formula $\mathbf{Y}_{\text{bus}}$
 \end_inset
 
- 
+ (jedina matrica) = natID 
 \series bold
 rijetka kompleksna
 \series default
-, vektori 
-\series bold
-puni (dense)
-\series default
-. 
+ matrica (sparse); vektori rezultata u std. kontejnerima. 
 \end_layout
 
 \begin_layout Itemize

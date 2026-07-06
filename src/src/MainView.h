@@ -69,8 +69,9 @@ private:
 
 	// _tabIcon and _tabs are declared BEFORE the tab pages on purpose: members are
 	// destroyed in reverse declaration order, so the pages are torn down first, while
-	// their parent TabView (_tabs) is still alive. The reverse order lets a page's
-	// teardown touch an already-freed TabView -> heap corruption on close.
+	// their parent TabView (_tabs) is still alive. The opposite order (pages after
+	// _tabs) would free the TabView first, and a page touching the already-freed
+	// TabView during its own teardown causes heap corruption on close.
 	gui::Image    _tabIcon;
 	gui::TabView  _tabs;
 
@@ -90,13 +91,21 @@ private:
 
 	static double parseD(const td::String& s, double defVal)
 	{
-		mu::ScopedCLocale loc;
 		if (s.isEmpty())
 			return defVal;
-		return std::atof(s.c_str());
+		std::string str = s.c_str();
+		for (char& c : str)          // accept comma as decimal separator (BA/EU keyboards)
+			if (c == ',') c = '.';
+		mu::ScopedCLocale loc;       // parse with '.' decimal regardless of process locale
+		char* end = nullptr;
+		double v = std::strtod(str.c_str(), &end);
+		if (end == str.c_str())      // nothing parsed -> keep default
+			return defVal;
+		return v;
 	}
 
-	double globalXd() { return parseD(_leXd.getText(), 0.0608); }
+	// transient reactance of all generators; must be > 0 (else 1/(jXd') blows up)
+	double globalXd() { double v = parseD(_leXd.getText(), 0.0608); return (v > 0.0) ? v : 0.0608; }
 
 	void setStatus(const td::String& s)  { if (_pStatus) _pStatus->setMessage(s); }
 	void setSummary(const td::String& s) { if (_pStatus) _pStatus->setSummary(s); }
@@ -245,6 +254,14 @@ private:
 	// table's selection handler because it does NOT touch the fault table itself.
 	void fillSelected(const Results& R)
 	{
+		// if the selected-bus solve failed, _busV is incomplete -> avoid out-of-bounds
+		if ((int)R._sel._busV.size() < _mpc.size())
+		{
+			_pgVolt._table.clean();
+			_pgBranch._table.clean();
+			_pgGen._table.clean();
+			return;
+		}
 		_pgVolt._table.clean();
 		_pgVolt._table.beginUpdate();
 		for (int i = 0; i < _mpc.size(); ++i)
