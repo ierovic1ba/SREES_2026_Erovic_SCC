@@ -18,4 +18,13 @@ public:
 	{
 		setContentView(&_canvas);
 	}
+
+	// Detach the content view before the _canvas member is destroyed. _canvas is an
+	// embedded member (not heap-allocated); if the ViewScroller base touches or frees
+	// its content view during its own destruction, it hits an already-destroyed member
+	// -> heap-corruption assertion on close. Clearing it here breaks that chain.
+	~CanvasHost()
+	{
+		setContentView(nullptr);
+	}
 };

@@ -28,5 +28,9 @@ public:
 protected:
 	// without this override the window would not close (default shouldClose() returns false)
 	bool shouldClose() override { return true; }
-	void onClose() override { gui::Window::onClose(); }
+	void onClose() override
+	{
+		_mainView.prepareForClose(); // leave a non-canvas tab active during teardown
+		gui::Window::onClose();
+	}
 };

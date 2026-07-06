@@ -67,6 +67,13 @@ private:
 	gui::Button   _btnCompute;
 	gui::Button   _btnExport;
 
+	// _tabIcon and _tabs are declared BEFORE the tab pages on purpose: members are
+	// destroyed in reverse declaration order, so the pages are torn down first, while
+	// their parent TabView (_tabs) is still alive. The reverse order lets a page's
+	// teardown touch an already-freed TabView -> heap corruption on close.
+	gui::Image    _tabIcon;
+	gui::TabView  _tabs;
+
 	TablePage     _pgFault;
 	TablePage     _pgVolt;
 	TablePage     _pgBranch;
@@ -74,8 +81,6 @@ private:
 	CanvasHost<ChartView>    _pgChart;
 	CanvasHost<DiagramView>  _pgDiagram;
 	CanvasHost<ReportCanvas> _pgReport;
-	gui::Image    _tabIcon;
-	gui::TabView  _tabs;
 	gui::GridLayout _gl;
 
 	StatusBar*          _pStatus = nullptr;
@@ -560,6 +565,11 @@ public:
 	}
 
 	void setStatusBar(StatusBar* p) { _pStatus = p; }
+
+	// Called just before the window closes: activate a non-canvas tab so the canvas
+	// widgets are not the visible view during teardown (a canvas being torn down
+	// while active trips a debug-only assertion in natID on some platforms).
+	void prepareForClose() { _tabs.showView(0); }
 
 	// menu and toolbar actions
 	bool onActionItem(gui::ActionItemDescriptor& aiDesc) override
